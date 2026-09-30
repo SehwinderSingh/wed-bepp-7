@@ -15,6 +15,7 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+// POST /api/products
 const createProduct = async (req, res) => {
   const {
     productName,
@@ -22,10 +23,12 @@ const createProduct = async (req, res) => {
     description,
     price,
     inventoryCount,
-    supplier: { name, contactEmail, contactPhone, isVerified },
+    supplier: { name, contactEmail, contactPhone, isVerified } = {},   // ← = {} added
   } = req.body;
 
   try {
+    const user_id = req.user._id;   // ← ADD THIS: comes from requireAuth
+
     const newProduct = await Product.create({
       productName,
       category,
@@ -38,6 +41,7 @@ const createProduct = async (req, res) => {
         contactPhone,
         isVerified,
       },
+      user_id,
     });
     res.status(201).json(newProduct);
   } catch (error) {
