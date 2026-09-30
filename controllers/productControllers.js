@@ -49,7 +49,29 @@ const createProduct = async (req, res) => {
 
 // GET /api/products/:productId
 const getProductById = async (req, res) => {
-  res.send("getProductById");
+  try {
+    const { productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(404).json({
+        error: "Product not found",
+      });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        error: "Product not found",
+      });
+    }
+
+    return res.status(200).json(product);
+  } catch (error) {
+    return res.status(500).json({
+      error: "Failed to fetch product",
+    });
+  }
 };
 
 // PUT /api/products/:productId
@@ -59,21 +81,23 @@ const updateProduct = async (req, res) => {
 
 // DELETE /api/products/:productId
 const deleteProduct = async (req, res) => {
-    const { productId } = req.params;
+  const { productId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-        return res.status(404).json({ message: 'Product not found' });
-    }
-    try {
-        const deletedProduct = await Product.findOneAndDelete({ _id: productId });
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+  try {
+    const deletedProduct = await Product.findOneAndDelete({ _id: productId });
 
-        if (!deletedProduct) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to delete product', error: error.message });
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
     }
+    res.status(204).send();
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete product", error: error.message });
+  }
 };
 
 module.exports = {
